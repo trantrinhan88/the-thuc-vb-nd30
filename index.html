@@ -229,8 +229,103 @@
         .btn-load { background: #64748b; color: white; }
         .btn-load:hover { background: #475569; }
 
+        .btn-new { background: #ec4899; color: white; }
+        .btn-new:hover { background: #db2777; }
+
+        .btn-history { background: #8b5cf6; color: white; }
+        .btn-history:hover { background: #7c3aed; }
+
         .btn-ai { background: #6366f1; color: white; width: 100%; }
         .btn-ai:hover { background: #4f46e5; }
+
+        /* ========== VERSION HISTORY MODAL ========== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: #fff;
+            border-radius: 12px;
+            width: 480px;
+            max-width: 96vw;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+            overflow: hidden;
+            animation: modalIn .2s cubic-bezier(.34,1.56,.64,1);
+        }
+        @keyframes modalIn { from { transform: scale(.92); opacity:0; } to { transform: scale(1); opacity:1; } }
+        .modal-header {
+            padding: 1rem 1.25rem;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 { font-size: 1rem; font-weight: 700; }
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            line-height: 1;
+            opacity: .85;
+        }
+        .modal-close:hover { opacity: 1; }
+        .modal-body { flex: 1; overflow-y: auto; padding: 0.9rem 1.25rem; }
+        .version-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.7rem 0.85rem;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .version-item:hover { border-color: var(--primary); background: var(--accent); }
+        .version-meta { flex: 1; min-width: 0; }
+        .version-time { font-size: .8rem; font-weight: 700; color: var(--text-main); }
+        .version-desc { font-size: .74rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .version-load-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: .75rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            transition: background .15s;
+        }
+        .version-load-btn:hover { background: var(--primary-hover); }
+        .version-delete-btn {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: .75rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            transition: background .15s;
+        }
+        .version-delete-btn:hover { background: #fecaca; }
+        .modal-empty { text-align: center; padding: 2rem; color: var(--text-muted); font-size: .88rem; }
 
         .sidebar-footer {
             padding: 0.9rem 1.25rem;
@@ -303,6 +398,23 @@
             font-size: 13pt;
             text-align: center;
             margin-top: 4pt;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Trích yếu loại không phải Công văn – căn giữa trong vùng nội dung */
+        #recipient-other {
+            text-align: center;
+            margin-bottom: 0.9rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        #preview-doc-summary-other {
+            font-size: 14pt;
+            margin-top: 4pt;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
         }
 
         .national-title {
@@ -632,13 +744,23 @@
 
         <footer class="sidebar-footer">
             <div class="footer-row">
+                <button id="new-btn" class="btn btn-new" style="flex:1;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Văn bản mới
+                </button>
+                <button id="history-btn" class="btn btn-history" style="flex:1;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Lịch sử
+                </button>
+            </div>
+            <div class="footer-row">
                 <button id="save-btn" class="btn btn-save">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                    Lưu nháp
+                    Lưu phiên bản
                 </button>
                 <button id="load-btn" class="btn btn-load">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    Tải lại
+                    Tải mới nhất
                 </button>
             </div>
             <div class="footer-row">
@@ -679,9 +801,9 @@
                     <span id="preview-recipient-main">...</span>
                 </div>
                 <!-- Báo cáo / Thông báo / Kế hoạch -->
-                <div id="recipient-other" style="display:none; text-align:center; margin-bottom:0.9rem;">
+                <div id="recipient-other" style="display:none;">
                     <div id="preview-doc-type-title" style="font-size:16pt; font-weight:bold; text-transform:uppercase; letter-spacing:1px;"></div>
-                    <div id="preview-doc-summary-other" style="font-size:14pt; margin-top:4pt;"></div>
+                    <div id="preview-doc-summary-other" style="font-size:14pt; margin-top:4pt; white-space:pre-wrap; word-wrap:break-word; overflow-wrap:break-word;"></div>
                     <div id="preview-doc-summary-underline" style="height:1px; background:#000; width:4cm; margin:3pt auto 0;"></div>
                 </div>
             </div>
@@ -706,6 +828,19 @@
             </div>
         </div>
     </main>
+</div>
+
+<!-- ===== VERSION HISTORY MODAL ===== -->
+<div id="history-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Lịch sử phiên bản">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>🕐 Lịch sử phiên bản</h2>
+            <button class="modal-close" id="modal-close-btn" aria-label="Đóng">✕</button>
+        </div>
+        <div class="modal-body" id="history-list">
+            <div class="modal-empty">Chưa có phiên bản nào được lưu.</div>
+        </div>
+    </div>
 </div>
 
 <div id="toast" class="toast" aria-live="polite"></div>
@@ -883,21 +1018,109 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('preview-recipients-cc').innerHTML = cc.join('<br>') || '- Như trên;<br>- Lưu: VT.';
     };
 
-    // Save / Load
-    const saveFormData = () => {
-        const data = {};
-        Object.keys(fields).forEach(k => { data[k] = fields[k].value; });
-        localStorage.setItem('congvan_saved_data', JSON.stringify(data));
-        showToast('✓ Đã lưu văn bản!', 'success');
+    // ===== VERSION HISTORY =====
+    const VERSION_KEY = 'congvan_version_history';
+    const DRAFT_KEY   = 'congvan_saved_data';
+    const MAX_VERSIONS = 30;
+
+    const getVersions = () => {
+        try { return JSON.parse(localStorage.getItem(VERSION_KEY) || '[]'); } catch { return []; }
     };
 
-    const loadFormData = () => {
-        const raw = localStorage.getItem('congvan_saved_data');
-        if (!raw) { showToast('Chưa có văn bản đã lưu.', 'warning'); return; }
-        const data = JSON.parse(raw);
+    const collectFormData = () => {
+        const data = {};
+        Object.keys(fields).forEach(k => { data[k] = fields[k].value; });
+        return data;
+    };
+
+    const applyFormData = (data) => {
         Object.keys(data).forEach(k => { if (fields[k]) fields[k].value = data[k]; });
         updateAgencyLogic();
-        showToast('✓ Đã tải lại văn bản!', 'success');
+    };
+
+    // Save – lưu phiên bản có timestamp
+    const saveFormData = () => {
+        const data = collectFormData();
+        const ts = new Date().toISOString();
+        const label = data.docSummary ? data.docSummary.slice(0, 60) : '(Không có trích yếu)';
+        const versions = getVersions();
+        versions.unshift({ ts, label, data });
+        if (versions.length > MAX_VERSIONS) versions.length = MAX_VERSIONS;
+        localStorage.setItem(VERSION_KEY, JSON.stringify(versions));
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); // giữ tương thích load cũ
+        showToast('✓ Đã lưu phiên bản!', 'success');
+    };
+
+    // Load – tải phiên bản mới nhất (tương thích cũ)
+    const loadFormData = () => {
+        const versions = getVersions();
+        if (versions.length === 0) {
+            // Fallback sang key cũ
+            const raw = localStorage.getItem(DRAFT_KEY);
+            if (!raw) { showToast('Chưa có văn bản đã lưu.', 'warning'); return; }
+            applyFormData(JSON.parse(raw));
+            showToast('✓ Đã tải lại văn bản!', 'success');
+            return;
+        }
+        applyFormData(versions[0].data);
+        showToast('✓ Đã tải phiên bản mới nhất!', 'success');
+    };
+
+    // New document – xóa toàn bộ form về mặc định
+    const newDocument = () => {
+        if (!confirm('Tạo văn bản mới? Nội dung hiện tại sẽ bị xóa (bạn có thể Lưu phiên bản trước khi tạo mới).')) return;
+        ['docSummary','recipientMain','legalBasis','issueStatement','mainContent','conclusion','recipientsCc'].forEach(k => { fields[k].value = ''; });
+        fields.docType.value = 'cong-van';
+        fields.signPosition.value = 'GIÁM ĐỐC';
+        fields.date.value = new Date().toISOString().split('T')[0];
+        // Giữ cơ quan hiện tại
+        updateAgencyLogic();
+        showToast('✓ Đã tạo văn bản mới!', 'success');
+    };
+
+    // Format timestamp sang tiếng Việt
+    const fmtTs = (ts) => {
+        const d = new Date(ts);
+        const pad = n => String(n).padStart(2,'0');
+        return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+
+    // Render lịch sử
+    const renderHistory = () => {
+        const versions = getVersions();
+        const list = document.getElementById('history-list');
+        if (!versions.length) {
+            list.innerHTML = '<div class="modal-empty">Chưa có phiên bản nào được lưu.<br><small>Nhấn <b>Lưu phiên bản</b> để bắt đầu lưu.</small></div>';
+            return;
+        }
+        list.innerHTML = versions.map((v, i) => `
+            <div class="version-item">
+                <div class="version-meta">
+                    <div class="version-time">🕐 ${fmtTs(v.ts)}</div>
+                    <div class="version-desc" title="${v.label}">${v.label}</div>
+                </div>
+                <button class="version-load-btn" onclick="loadVersion(${i})">Tải lại</button>
+                <button class="version-delete-btn" onclick="deleteVersion(${i})">Xóa</button>
+            </div>
+        `).join('');
+    };
+
+    window.loadVersion = (idx) => {
+        const versions = getVersions();
+        if (!versions[idx]) return;
+        applyFormData(versions[idx].data);
+        document.getElementById('history-modal').classList.remove('open');
+        showToast(`✓ Đã tải phiên bản ${fmtTs(versions[idx].ts)}!`, 'success');
+    };
+
+    window.deleteVersion = (idx) => {
+        const versions = getVersions();
+        if (!versions[idx]) return;
+        if (!confirm(`Xóa phiên bản ${fmtTs(versions[idx].ts)}?`)) return;
+        versions.splice(idx, 1);
+        localStorage.setItem(VERSION_KEY, JSON.stringify(versions));
+        renderHistory();
+        showToast('Đã xóa phiên bản.', 'warning');
     };
 
     // ===== DOCX Export =====
@@ -1404,6 +1627,19 @@ Nếu không có lỗi, trả về { "issues": [] }. Chỉ trả về JSON, khô
     document.getElementById('export-docx-btn').addEventListener('click', exportDocx);
     document.getElementById('save-btn').addEventListener('click', saveFormData);
     document.getElementById('load-btn').addEventListener('click', loadFormData);
+    document.getElementById('new-btn').addEventListener('click', newDocument);
+
+    // History modal
+    document.getElementById('history-btn').addEventListener('click', () => {
+        renderHistory();
+        document.getElementById('history-modal').classList.add('open');
+    });
+    document.getElementById('modal-close-btn').addEventListener('click', () => {
+        document.getElementById('history-modal').classList.remove('open');
+    });
+    document.getElementById('history-modal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+    });
 
     // Event: doc type change
     fields.docType.addEventListener('change', updatePreview);
@@ -1417,4 +1653,3 @@ Nếu không có lỗi, trả về { "issues": [] }. Chỉ trả về JSON, khô
 </script>
 </body>
 </html>
-
